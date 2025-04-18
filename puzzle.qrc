@@ -1,0 +1,7 @@
+<RCC>
+	<qresource prefix="puzzle">
+    </qresource>
+    <qresource prefix="/">
+        <file>icon.png</file>
+    </qresource>
+</RCC>

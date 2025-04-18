@@ -1,0 +1,111 @@
+
+#include "AutomaticSolve.h"
+#include "puzzle.h"
+#include "qpropertyanimation.h"
+#include <windows.h>
+
+AutomaticSolve::AutomaticSolve(puzzle* parent, Tile** sourceArray)
+	: parentW(parent)
+{
+	std::cout << "Starting program" << std::endl;
+	for (int i = 0; i < field_size; i++) {
+		for (int j = 0; j < field_size; j++) {
+			int number = i * field_size + j + 1;
+			if (number == field_size * field_size) {
+				correctPos[0] = POS(field_size - 1, field_size - 1);
+			}
+			else {
+				correctPos[number] = POS(j, i);
+			}
+			sourceArray[i*4+j]->setDisabled(true);
+		}
+	}
+	
+	State* state = new State(sourceArray, correctPos);
+	states_queue.push(state);
+	automatic_solve();
+	
+	parentW->menu->moves_num = swapOrder.size();
+	parentW->menu->moves_counter->setText("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(parentW->menu->moves_num));
+	parentW->menu->moves_counter->update();
+	Tile* moveTile;
+	do {
+		moveTile = parentW->field->tilesArray[swapOrder.top()];
+		swapOrder.pop();
+		//if (parentW->field->isNear(clickedTile, field->tile0)) {
+		QPropertyAnimation* anim = new QPropertyAnimation(moveTile, "pos", parentW);
+		anim->setDuration(600);
+		anim->setStartValue(moveTile->pos());
+		anim->setEndValue(parentW->field->tile0->pos());
+		anim->setEasingCurve(QEasingCurve::InOutCubic);
+		parentW->field->tile0->move(moveTile->pos());
+
+		QEventLoop loop;
+		QObject::connect(anim, &QPropertyAnimation::finished, &loop, &QEventLoop::quit);
+		anim->start();
+		loop.exec();
+		std::swap(parentW->field->tile0->index, moveTile->index);
+
+		parentW->menu->moves_counter->setText("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(parentW->menu->moves_num));
+		parentW->menu->moves_counter->update();
+		
+	} while (!swapOrder.empty());
+		
+	parentW->showResult();
+}
+
+void AutomaticSolve::automatic_solve()
+{
+	do {
+		State* currentState = states_queue.top(); 
+		states_queue.pop();
+		
+		std::cout << "Heu: " << currentState->prognised_heuristic
+			<< " Moves: " << currentState->current_moves << std::endl;
+
+		/*parentW->menu->moves_counter->setText("H: "+QString::number(currentState->prognised_heuristic)+"  M: " + QString::number(currentState->current_moves) + "\n"+ QString::number(currentState->prognised_heuristic+currentState->current_moves));
+		parentW->menu->moves_counter->update();
+		parentW->menu->moves_counter->repaint();*/
+		parentW->menu->moves_counter->setText("Solving...");
+		parentW->menu->moves_counter->update();
+		parentW->menu->moves_counter->repaint();
+
+		for (ZeroMovesDir dir : {UP, DOWN, LEFT, RIGHT}) {
+			if (currentState->can_move(dir)) {
+				State* newState = new State(currentState, correctPos, dir);
+
+				if (!newState->check_unique_and_add(existing_states, states_queue)){
+					delete newState;
+				}
+			}
+
+		}
+	} while (states_queue.top()->prognised_heuristic != 0);
+	for (int i = 0; i < field_size; i++) {
+		for (int j = 0; j < field_size; j++) {
+			std::cout << int(states_queue.top()->tilesMatrix[i][j]) << "\t";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl << "\tMoves:\t" << int(states_queue.top()->current_moves) << std::endl << std::endl;
+
+	State* thisState = states_queue.top();
+	do {
+
+		int swapped_tile = thisState->parent_state->tilesMatrix[thisState->zero_pos.y][thisState->zero_pos.x];
+		swapOrder.push(swapped_tile - 1); // tile 1 has index 0 in Field::tilesArray...
+		thisState = thisState->parent_state;
+	} while (thisState->parent_state != nullptr);
+	delete thisState;
+
+	while (!states_queue.empty()) {
+		State* thisState = states_queue.top();
+		states_queue.pop();
+		delete thisState;
+	}
+}
+
+AutomaticSolve::~AutomaticSolve()
+{
+	
+}

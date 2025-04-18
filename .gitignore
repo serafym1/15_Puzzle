@@ -1,0 +1,26 @@
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.sdf
+*.VC.db
+
+# Build folders
+Debug/
+Release/
+x64/
+x86/
+build/
+out/
+
+# Compiled files
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.log
+*.tlog
+
+# Qt
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
