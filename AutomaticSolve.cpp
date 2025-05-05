@@ -32,7 +32,6 @@ AutomaticSolve::AutomaticSolve(puzzle* parent, Tile** sourceArray)
 	do {
 		moveTile = parentW->field->tilesArray[swapOrder.top()];
 		swapOrder.pop();
-		//if (parentW->field->isNear(clickedTile, field->tile0)) {
 		QPropertyAnimation* anim = new QPropertyAnimation(moveTile, "pos", parentW);
 		anim->setDuration(600);
 		anim->setStartValue(moveTile->pos());
@@ -63,9 +62,6 @@ void AutomaticSolve::automatic_solve()
 		std::cout << "Heu: " << currentState->prognised_heuristic
 			<< " Moves: " << currentState->current_moves << std::endl;
 
-		/*parentW->menu->moves_counter->setText("H: "+QString::number(currentState->prognised_heuristic)+"  M: " + QString::number(currentState->current_moves) + "\n"+ QString::number(currentState->prognised_heuristic+currentState->current_moves));
-		parentW->menu->moves_counter->update();
-		parentW->menu->moves_counter->repaint();*/
 		parentW->menu->moves_counter->setText("Solving...");
 		parentW->menu->moves_counter->update();
 		parentW->menu->moves_counter->repaint();
@@ -73,9 +69,11 @@ void AutomaticSolve::automatic_solve()
 		for (ZeroMovesDir dir : {UP, DOWN, LEFT, RIGHT}) {
 			if (currentState->can_move(dir)) {
 				State* newState = new State(currentState, correctPos, dir);
-
-				if (!newState->check_unique_and_add(existing_states, states_queue)){
+				if (!existing_states.is_added(newState)) {
 					delete newState;
+				}
+				else {
+					states_queue.push(newState);
 				}
 			}
 
@@ -93,7 +91,7 @@ void AutomaticSolve::automatic_solve()
 	do {
 
 		int swapped_tile = thisState->parent_state->tilesMatrix[thisState->zero_pos.y][thisState->zero_pos.x];
-		swapOrder.push(swapped_tile - 1); // tile 1 has index 0 in Field::tilesArray...
+		swapOrder.push(swapped_tile - 1);
 		thisState = thisState->parent_state;
 	} while (thisState->parent_state != nullptr);
 	delete thisState;
@@ -104,6 +102,25 @@ void AutomaticSolve::automatic_solve()
 		delete thisState;
 	}
 }
+
+//bool AutomaticSolve::check_unique_and_add(State* current)
+//{
+//	for (State* existing : existing_states) {
+//		if (current->is_same(existing)) {
+//			if (current->current_moves < existing->current_moves) {
+//				*existing = *current;
+//				states_queue.push(current);
+//				return true;
+//			}
+//			return false;
+//		}
+//
+//	}
+//	existing_states.push_back(current);
+//	states_queue.push(current);
+//
+//	return true;
+//}
 
 AutomaticSolve::~AutomaticSolve()
 {

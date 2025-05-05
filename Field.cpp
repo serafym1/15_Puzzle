@@ -28,7 +28,7 @@ void Field::shuffle()
 {
     int last_moved = 0;
     int i = 0;
-    while (i < 50) { // It is prowed that it wouldn`t be more complicated with more than about 100 moves to shuffle
+    while (i < 300) { // It is prowed that it wouldn`t be more complicated with more than about 100 moves to shuffle
         int rand_index = rand() % 15;
         if (isNear(tile0, tilesArray[rand_index]) && rand_index != last_moved) {
             QPoint temp = tile0->pos();

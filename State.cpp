@@ -97,25 +97,6 @@ bool State::is_same(const State* other) {
     return are_same;
 }
 
-bool State::check_unique_and_add(std::vector<State*>& existing_states, priority_queue<State*, CompareState>& states_queue)
-{
-    for (State* existing : existing_states) {
-        if (this->is_same(existing)) {
-            if (this->current_moves < existing->current_moves) {
-                *existing = *this;
-                states_queue.push(this);
-                return true;
-            }
-            return false; 
-        }
-        
-    }
-    existing_states.push_back(this);
-    states_queue.push(this);
-
-    return true;
-}
-
 bool State::can_move(ZeroMovesDir zero_move)
 {
     switch (zero_move) {

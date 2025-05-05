@@ -3,7 +3,9 @@
 #include "puzzle.h"
 #include "Tile.h"
 #include "State.h"
-#include <stack>
+#include "queue"
+#include "stack"
+#include "existing_states_tree.h"
 
 class puzzle;
 
@@ -16,9 +18,10 @@ public:
 
     puzzle* parentW;
 
-    priority_queue<State*, CompareState> states_queue;
-    std::vector<State*> existing_states;
+    std::priority_queue<State*, std::vector<State*>, CompareState> states_queue;
+    ExistingStatesTree existing_states;
     std::stack<int> swapOrder;
 
+    //bool check_unique_and_add(State* currentState);
     void automatic_solve();
 };

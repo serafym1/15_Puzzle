@@ -40,7 +40,6 @@ public:
     State* parent_state;
 
     void calculate_heuristic();
-    bool check_unique_and_add(std::vector<State*>& existing_states, priority_queue<State*, CompareState>& states_queue);
     bool is_same(const State* other);
     bool can_move(ZeroMovesDir zero_moves);
 };
@@ -51,8 +50,8 @@ struct CompareState {
         int f_b = 2*b->current_moves + 3*b->prognised_heuristic;
 
         if (f_a != f_b) {
-            return f_a < f_b;
+            return f_a > f_b;
         }
-        return a->prognised_heuristic < b->prognised_heuristic;
+        return a->prognised_heuristic > b->prognised_heuristic;
     }
 };
