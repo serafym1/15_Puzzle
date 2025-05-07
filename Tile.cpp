@@ -15,8 +15,8 @@ Tile::Tile(int pos_x, int pos_y, int num, QWidget* parent)
         hide();
         setText(QString::number(0));
     }
-    move(pos_x * (gap + tile_size) + gap, pos_y * (gap + tile_size) + gap);
-    setFixedSize(tile_size, tile_size);
+    move(pos_x * (PX_GAP + TILE_PX_SIZE) + PX_GAP, pos_y * (PX_GAP + TILE_PX_SIZE) + PX_GAP);
+    setFixedSize(TILE_PX_SIZE, TILE_PX_SIZE);
 }
 
 Tile::~Tile()

@@ -12,21 +12,21 @@ puzzle::puzzle(QWidget* parent)
     this->setWindowIcon(QIcon(":/icon.png"));
     
     menu = new Menu(this);
-    menu->setGeometry(gap, gap, (tile_size + gap) * 2 , 50);
+    menu->setGeometry(PX_GAP, PX_GAP, (TILE_PX_SIZE + PX_GAP) * 2 , 50);
     menu->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px;");
     menu->moves_counter->resize(menu->size());
 
     automatic_solve_btn = new QPushButton(this);
-    automatic_solve_btn->setGeometry(menu->x()+ menu->width()+gap, gap, menu->width(), 50);
+    automatic_solve_btn->setGeometry(menu->x()+ menu->width()+PX_GAP, PX_GAP, menu->width(), 50);
     automatic_solve_btn->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px; font-size: 15px;  font-weight: bold;");
     automatic_solve_btn->setText("Automatic\nsolve");
     automatic_solve_btn->setDisabled(true);
     
     //puzzle* parentW = qobject_cast<puzzle*>(this->parentWidget());
     field = new Field(this);
-    field->setGeometry(gap, 2 * gap + 50, (tile_size + gap) * field_size + gap, (tile_size + gap) * field_size + gap);
+    field->setGeometry(PX_GAP, 2 * PX_GAP + 50, (TILE_PX_SIZE + PX_GAP) * FIELD_SIZE + PX_GAP, (TILE_PX_SIZE + PX_GAP) * FIELD_SIZE + PX_GAP);
     field->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px;");
-    for (int i = 0; i < field_size*field_size-1; i++) {
+    for (int i = 0; i < FIELD_SIZE*FIELD_SIZE-1; i++) {
         connect(field->tilesArray[i], &QPushButton::clicked, this, [=]() {
             Tile* clickedTile = field->tilesArray[i];
             if (field->isNear(clickedTile, field->tile0)) {
@@ -60,8 +60,8 @@ puzzle::puzzle(QWidget* parent)
         });
 
     QSize window_size;
-    window_size.setWidth(field->width()+2*gap);
-    window_size.setHeight(field->height() + menu->height() + 3 * gap);
+    window_size.setWidth(field->width()+2*PX_GAP);
+    window_size.setHeight(field->height() + menu->height() + 3 * PX_GAP);
     this->setFixedSize(window_size);
 }
 
@@ -80,7 +80,7 @@ void puzzle::showResult()
         menu->updateMoves_counter();
         automatic_solve_btn->setDisabled(true);
         field->startButton->show();
-        for (int i = 0; i < field_size * field_size; i++) {
+        for (int i = 0; i < FIELD_SIZE * FIELD_SIZE; i++) {
             field->tilesArray[i]->setEnabled(true);
         }
         break;

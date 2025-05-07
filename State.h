@@ -34,7 +34,7 @@ public:
     POS* correctPos;
     POS zero_pos;
     int current_moves;
-    int prognised_heuristic;
+    int heuristic;
     int tilesMatrix[4][4];
 
     State* parent_state;
@@ -46,12 +46,12 @@ public:
 
 struct CompareState {
     bool operator()(State* a, State* b) const {
-        int f_a = 2*a->current_moves + 3*a->prognised_heuristic;
-        int f_b = 2*b->current_moves + 3*b->prognised_heuristic;
+        int f_a = 2*a->current_moves + 3*a->heuristic;
+        int f_b = 2*b->current_moves + 3*b->heuristic;
 
         if (f_a != f_b) {
             return f_a > f_b;
         }
-        return a->prognised_heuristic > b->prognised_heuristic;
+        return a->heuristic > b->heuristic;
     }
 };

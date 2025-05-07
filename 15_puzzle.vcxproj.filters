@@ -58,7 +58,7 @@
     <ClCompile Include="State.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="existing_states_tree.cpp">
+    <ClCompile Include="ExistingStatesTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -84,7 +84,7 @@
     <ClInclude Include="AutomaticSolve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="existing_states_tree.h">
+    <ClInclude Include="ExistingStatesTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

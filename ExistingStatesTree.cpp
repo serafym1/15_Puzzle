@@ -1,5 +1,5 @@
 
-#include "existing_states_tree.h"
+#include "ExistingStatesTree.h"
 
 ExistingStatesTree::ExistingStatesTree()
 {
@@ -13,8 +13,8 @@ Node::Node(uint16_t number)
 bool ExistingStatesTree::is_added(State* currentState) {
 	Node* currentNode = root;
 
-	for (int i = 0; i < field_size; i++) {
-		for (int j = 0; j < field_size; j++) {
+	for (int i = 0; i < FIELD_SIZE; i++) {
+		for (int j = 0; j < FIELD_SIZE; j++) {
 			uint8_t number = currentState->tilesMatrix[i][j];
 			bool haveNode = false;
 

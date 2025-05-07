@@ -5,30 +5,29 @@ Field::Field(QWidget* parent)
     : QFrame(parent)
 {
     int index = 0;
-    for (int i = 0; i < field_size; i++) {
-        for (int j = 0; j < field_size; j++) {
+    for (int i = 0; i < FIELD_SIZE; i++) {
+        for (int j = 0; j < FIELD_SIZE; j++) {
             tilesArray[index] = new Tile(j, i, index, this);
             index++;
         }
     }
-    tile0 = tilesArray[field_size * field_size - 1];
+    tile0 = tilesArray[FIELD_SIZE * FIELD_SIZE - 1];
 
     startButton = new QPushButton("Start", this);
 
     startButton->setStyleSheet("background-color: rgba(255, 150, 255, 255); border-radius: 15px;");
-
 }
 
 bool Field::isNear(Tile* tile1, Tile* tile2)
 {
-    return (abs(tile1->x() - tile2->x()) + abs(tile1->y() - tile2->y()) == (gap + tile_size));
+    return (abs(tile1->x() - tile2->x()) + abs(tile1->y() - tile2->y()) == (PX_GAP + TILE_PX_SIZE));
 }
 
 void Field::shuffle()
 {
     int last_moved = 0;
     int i = 0;
-    while (i < 300) { // It is prowed that it wouldn`t be more complicated with more than about 100 moves to shuffle
+    while (i < 1000) { // It is prowed that it wouldn`t be more complicated with more than about 100 moves to shuffle
         int rand_index = rand() % 15;
         if (isNear(tile0, tilesArray[rand_index]) && rand_index != last_moved) {
             QPoint temp = tile0->pos();
@@ -43,7 +42,7 @@ void Field::shuffle()
 
 bool Field::isSorted()
 {
-    for (int i = 0; i < field_size * field_size - 1; i++) {
+    for (int i = 0; i < FIELD_SIZE * FIELD_SIZE - 1; i++) {
         if (tilesArray[i]->index != i) {
             return false;
         }
@@ -53,7 +52,7 @@ bool Field::isSorted()
 
 Field::~Field()
 {
-    for (int i = 0; i < field_size * field_size; ++i) {
+    for (int i = 0; i < FIELD_SIZE * FIELD_SIZE; ++i) {
         delete tilesArray[i];
     }
     delete startButton;

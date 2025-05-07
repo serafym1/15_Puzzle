@@ -10,7 +10,7 @@ public:
     Field(QWidget* parent);
     ~Field();
 
-    Tile* tilesArray[field_size * field_size];
+    Tile* tilesArray[FIELD_SIZE * FIELD_SIZE];
     Tile* tile0;
     QPushButton* startButton;
 

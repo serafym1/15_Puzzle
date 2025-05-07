@@ -6,10 +6,10 @@ State::State(Tile** sourceArray, POS* correctPos) {
     parent_state = nullptr;
     current_moves = 0;
     this->correctPos = correctPos;
-    prognised_heuristic = 0;
-    for (int i = 0; i < field_size; i++) {
-        for (int j = 0; j < field_size; j++) {
-            int index = i * field_size + j;
+    heuristic = 0;
+    for (int i = 0; i < FIELD_SIZE; i++) {
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            int index = i * FIELD_SIZE + j;
             int m = sourceArray[index]->index / 4;
             int n = sourceArray[index]->index % 4;
             tilesMatrix[m][n] = sourceArray[index]->text().toInt();
@@ -24,20 +24,13 @@ State::State(Tile** sourceArray, POS* correctPos) {
 State::State(State* parent, POS* correctPos, ZeroMovesDir zero_move_dir) {
     parent_state = parent;
 
-    current_moves = 0;
-    State* copy = this;
-    do {
-        current_moves++;
-        copy = copy->parent_state;
-    } while (copy->parent_state != nullptr);
+    current_moves = this->parent_state->current_moves + 1;
 
     this->correctPos = correctPos;
-    prognised_heuristic = 0;
     zero_pos = parent->zero_pos;
-    //tilesMatrix = new std::vector<std::vector<int>>(4, std::vector<int>(4));
-    for (int i = 0; i < field_size; i++) {
-        for (int j = 0; j < field_size; j++) {
-            int index = i * field_size + j;
+    for (int i = 0; i < FIELD_SIZE; i++) {
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            int index = i * FIELD_SIZE + j;
             tilesMatrix[i][j] = parent_state->tilesMatrix[i][j];
         }
     }
@@ -64,26 +57,65 @@ State::State(State* parent, POS* correctPos, ZeroMovesDir zero_move_dir) {
 
 void State::calculate_heuristic()
 {
-    int misplased = 0;
-    for (int i = 0; i < field_size; i++) {
-        for (int j = 0; j < field_size; j++) {
-            if (tilesMatrix[i][j] != 0) {
-                int tile = tilesMatrix[i][j];
-                prognised_heuristic += abs(i - correctPos[tile].y) + abs(j - correctPos[tile].x);
+    heuristic = 0;
+    int linear_conflicts = 0;
+
+    for (int i = 0; i < FIELD_SIZE; i++) {
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            int tile = tilesMatrix[i][j];
+            if (tile == 0) continue;
+
+            int goal_y = correctPos[tile].y;
+            int goal_x = correctPos[tile].x;
+
+            heuristic += abs(i - goal_y) + abs(j - goal_x);
+        }
+    }
+
+    for (int row = 0; row < FIELD_SIZE; row++) {
+        for (int i = 0; i < FIELD_SIZE - 1; i++) {
+            int tile1 = tilesMatrix[row][i];
+            if (tile1 == 0 || correctPos[tile1].y != row) continue;
+
+            for (int j = i + 1; j < FIELD_SIZE; j++) {
+                int tile2 = tilesMatrix[row][j];
+                if (tile2 == 0 || correctPos[tile2].y != row) continue;
+
+                if (correctPos[tile1].x > correctPos[tile2].x) {
+                    linear_conflicts++;
+                }
             }
         }
     }
-    
+    for (int col = 0; col < FIELD_SIZE; col++) {
+        for (int i = 0; i < FIELD_SIZE - 1; i++) {
+            int tile1 = tilesMatrix[i][col];
+            if (tile1 == 0 || correctPos[tile1].x != col) continue;
+
+            for (int j = i + 1; j < FIELD_SIZE; j++) {
+                int tile2 = tilesMatrix[j][col];
+                if (tile2 == 0 || correctPos[tile2].x != col) continue;
+
+                if (correctPos[tile1].y > correctPos[tile2].y) {
+                    linear_conflicts++;
+                }
+            }
+        }
+    }
+
+    heuristic += 2 * linear_conflicts;
 }
+
+
 
 bool State::is_same(const State* other) {
     bool are_same = true;
-    if (this->prognised_heuristic != other->prognised_heuristic) {
+    if (this->heuristic != other->heuristic) {
         are_same = false;
     }
     else {
-        for (int i = 0; i < field_size; ++i) {
-            for (int j = 0; j < field_size; ++j) {
+        for (int i = 0; i < FIELD_SIZE; ++i) {
+            for (int j = 0; j < FIELD_SIZE; ++j) {
                 if (this->tilesMatrix[i][j] != other->tilesMatrix[i][j]) {
                     are_same = false;
                     break;
