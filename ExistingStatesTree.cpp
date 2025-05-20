@@ -10,7 +10,7 @@ Node::Node(uint16_t number)
 	: number(number), current_moves(0) {
 }
 
-bool ExistingStatesTree::is_added(State* currentState) {
+bool ExistingStatesTree::isAdded(State* currentState) {
 	Node* currentNode = root;
 
 	for (int i = 0; i < FIELD_SIZE; i++) {
@@ -18,7 +18,7 @@ bool ExistingStatesTree::is_added(State* currentState) {
 			uint8_t number = currentState->tilesMatrix[i][j];
 			bool haveNode = false;
 
-			for (Node* child : currentNode->next_number) {
+			for (Node* child : currentNode->nextNumber) {
 				if (child->number == number) {
 					haveNode = true;
 					currentNode = child;
@@ -28,7 +28,7 @@ bool ExistingStatesTree::is_added(State* currentState) {
 
 			if (!haveNode) {
 				Node* newNode = new Node(number);
-				currentNode->next_number.push_back(newNode);
+				currentNode->nextNumber.push_back(newNode);
 				currentNode = newNode;
 			}
 		}
@@ -38,4 +38,16 @@ bool ExistingStatesTree::is_added(State* currentState) {
 		return true;
 	}
 	return false;
+}
+
+ExistingStatesTree::~ExistingStatesTree() {
+	deleteSubtree(root);
+}
+
+void ExistingStatesTree::deleteSubtree(Node* node) {
+	if (!node) return;
+	for (Node* child : node->nextNumber) {
+		deleteSubtree(child);
+	}
+	delete node;
 }

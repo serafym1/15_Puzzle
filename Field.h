@@ -3,18 +3,25 @@
 #include "header.h"
 #include "qframe.h"
 #include "Tile.h"
+#include "puzzle.h"
+
+class Puzzle;
 
 class Field : public QFrame
 {
 public:
-    Field(QWidget* parent);
+    Field(QWidget* parentWidget, Puzzle* parent);
     ~Field();
-
+    
+    Puzzle* puzzle;
     Tile* tilesArray[FIELD_SIZE * FIELD_SIZE];
     Tile* tile0;
-    QPushButton* startButton;
+    QPushButton* autoShuffleBtn;
+    QPushButton* manualShuffleBtn;
 
     bool isNear(Tile* tile1, Tile* tile2);
-    void shuffle();
+    void automaticShuffle();
     bool isSorted();
+    void moveTile(Tile* tile);
+    void manualShuffle();
 };

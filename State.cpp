@@ -18,7 +18,7 @@ State::State(Tile** sourceArray, POS* correctPos) {
             }
         }
     }
-    calculate_heuristic();
+    calculateHeuristic();
 }
 
 State::State(State* parent, POS* correctPos, ZeroMovesDir zero_move_dir) {
@@ -52,10 +52,10 @@ State::State(State* parent, POS* correctPos, ZeroMovesDir zero_move_dir) {
         zero_pos.x++;
         break;
     }
-    calculate_heuristic();
+    calculateHeuristic();
 }
 
-void State::calculate_heuristic()
+void State::calculateHeuristic()
 {
     heuristic = 0;
     int linear_conflicts = 0;
@@ -108,7 +108,7 @@ void State::calculate_heuristic()
 
 
 
-bool State::is_same(const State* other) {
+bool State::isSame(const State* other) {
     bool are_same = true;
     if (this->heuristic != other->heuristic) {
         are_same = false;
@@ -129,7 +129,7 @@ bool State::is_same(const State* other) {
     return are_same;
 }
 
-bool State::can_move(ZeroMovesDir zero_move)
+bool State::canMove(ZeroMovesDir zero_move)
 {
     switch (zero_move) {
     case UP:

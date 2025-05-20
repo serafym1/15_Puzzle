@@ -7,20 +7,20 @@
 #include "stack"
 #include "ExistingStatesTree.h"
 
-class puzzle;
+class Puzzle;
 
 class AutomaticSolve {
 public:
-    AutomaticSolve(puzzle* parent, Tile** sourceArray);
+    AutomaticSolve(Puzzle* parent, Tile** sourceArray);
     ~AutomaticSolve();
 
     POS correctPos[FIELD_SIZE * FIELD_SIZE];
 
-    puzzle* parentW;
+    Puzzle* puzzle;
 
-    std::priority_queue<State*, std::vector<State*>, CompareState> states_queue;
-    ExistingStatesTree existing_states;
-    std::stack<int> swap_order;
+    std::priority_queue<State*, std::vector<State*>, CompareState> statesQueue;
+    ExistingStatesTree existingStates;
+    std::stack<int> swapOrder;
 
-    void automatic_solve();
+    void automaticSolve();
 };

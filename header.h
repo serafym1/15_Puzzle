@@ -4,4 +4,4 @@
 
 #define FIELD_SIZE 4
 #define TILE_PX_SIZE 50
-#define PX_GAP 5
+#define GAP_PX 5

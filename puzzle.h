@@ -3,27 +3,29 @@
 #include "header.h"
 #include <QtWidgets/QMainWindow>
 #include "AutomaticSolve.h"
-#include "Menu.h"
+#include "MovesCounter.h"
 #include "Field.h"
 #include "ui_puzzle.h"
 #include <QtWidgets/QApplication>
 
 class AutomaticSolve;
+class Field;
 
-class puzzle : public QMainWindow
+class Puzzle : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    puzzle(QWidget* parent = nullptr);
-    ~puzzle();
+    Puzzle(QWidget* parent = nullptr);
+    ~Puzzle();
 
-    Menu* menu;
+    MovesCounter* movesCounter;
     Field* field;
     AutomaticSolve* automaticSolve;
-    QPushButton* automatic_solve_btn;
+    QPushButton* automaticSolveBtn;
+    QPushButton* startAfterManualSortBtn;
 
-    void showResult();
+    void showResult(QString title, QString message);
 
 private:
     Ui::puzzleClass ui;

@@ -85,15 +85,14 @@
   <ItemGroup>
     <ClCompile Include="ExistingStatesTree.cpp" />
     <ClCompile Include="Field.cpp" />
-    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="MovesCounter.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="Tile.cpp" />
     <QtRcc Include="puzzle.qrc" />
     <QtUic Include="puzzle.ui" />
-    <QtMoc Include="puzzle.h" />
+    <QtMoc Include="Puzzle.h" />
     <ClCompile Include="AutomaticSolve.cpp" />
-    <ClCompile Include="priority_queue.h" />
-    <ClCompile Include="puzzle.cpp" />
+    <ClCompile Include="Puzzle.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -101,7 +100,7 @@
     <ClInclude Include="ExistingStatesTree.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="header.h" />
-    <ClInclude Include="Menu.h" />
+    <ClInclude Include="MovesCounter.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Tile.h" />

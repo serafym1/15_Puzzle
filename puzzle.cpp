@@ -1,85 +1,74 @@
 
 #include "puzzle.h"
-#include "qpropertyanimation.h"
 #include "qmessagebox.h"
+#include "qpropertyanimation.h"
 
-puzzle::puzzle(QWidget* parent)
-    : QMainWindow(parent)
+Puzzle::Puzzle(QWidget* parentWidget)
+    : QMainWindow(parentWidget)
 {
     ui.setupUi(this);
 
     this->setWindowTitle("15 puzzle");
     this->setWindowIcon(QIcon(":/icon.png"));
     
-    menu = new Menu(this);
-    menu->setGeometry(PX_GAP, PX_GAP, (TILE_PX_SIZE + PX_GAP) * 2 , 50);
-    menu->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px;");
-    menu->moves_counter->resize(menu->size());
+    movesCounter = new MovesCounter(this);
+    movesCounter->setGeometry(GAP_PX, GAP_PX, (TILE_PX_SIZE + GAP_PX) * 2 , 50);
+    movesCounter->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px;");
+    movesCounter->counterLabel->resize(movesCounter->size());
 
-    automatic_solve_btn = new QPushButton(this);
-    automatic_solve_btn->setGeometry(menu->x()+ menu->width()+PX_GAP, PX_GAP, menu->width(), 50);
-    automatic_solve_btn->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px; font-size: 15px;  font-weight: bold;");
-    automatic_solve_btn->setText("Automatic\nsolve");
-    automatic_solve_btn->setDisabled(true);
-    
-    //puzzle* parentW = qobject_cast<puzzle*>(this->parentWidget());
-    field = new Field(this);
-    field->setGeometry(PX_GAP, 2 * PX_GAP + 50, (TILE_PX_SIZE + PX_GAP) * FIELD_SIZE + PX_GAP, (TILE_PX_SIZE + PX_GAP) * FIELD_SIZE + PX_GAP);
+    automaticSolve = nullptr;
+    automaticSolveBtn = new QPushButton(this);
+    automaticSolveBtn->setGeometry(movesCounter->x()+ movesCounter->width()+GAP_PX, GAP_PX, movesCounter->width(), 50);
+    automaticSolveBtn->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px; font-size: 15px;  font-weight: bold;");
+    automaticSolveBtn->setText("Automatic\nsolve");
+    automaticSolveBtn->setDisabled(true);
+
+    startAfterManualSortBtn = new QPushButton(this);
+    startAfterManualSortBtn->setText("Start");
+    startAfterManualSortBtn->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px; font-size: 15px;  font-weight: bold;");
+    startAfterManualSortBtn->setGeometry(GAP_PX, GAP_PX, (GAP_PX + TILE_PX_SIZE) * 4 + GAP_PX, 50);
+    startAfterManualSortBtn->hide();
+
+    field = new Field(this, this);
+    field->setGeometry(GAP_PX, 2 * GAP_PX + 50, (TILE_PX_SIZE + GAP_PX) * FIELD_SIZE + GAP_PX, (TILE_PX_SIZE + GAP_PX) * FIELD_SIZE + GAP_PX);
     field->setStyleSheet("background-color: rgba(255, 0, 255, 150); border-radius: 15px;");
-    for (int i = 0; i < FIELD_SIZE*FIELD_SIZE-1; i++) {
-        connect(field->tilesArray[i], &QPushButton::clicked, this, [=]() {
-            Tile* clickedTile = field->tilesArray[i];
-            if (field->isNear(clickedTile, field->tile0)) {
-                QPropertyAnimation* anim = new QPropertyAnimation(clickedTile, "pos", this);
-                anim->setDuration(200);
-                anim->setStartValue(clickedTile->pos());
-                anim->setEndValue(field->tile0->pos());
-                anim->setEasingCurve(QEasingCurve::InOutCubic);
-                field->tile0->move(clickedTile->pos());
-                anim->start();
-                std::swap(field->tile0->index, clickedTile->index);
-                
-                menu->moves_num++;
-                menu->updateMoves_counter();
-                if (field->isSorted()) {
-                    showResult();
-                }
-            }
-            });
-    }
-    field->startButton->resize(field->size());
-    connect(field->startButton, &QPushButton::clicked, this, [=]() {
-        field->shuffle();
-        field->startButton->hide();
-        automatic_solve_btn->setEnabled(true);
-        });
-    connect(automatic_solve_btn, &QPushButton::clicked, this, [=]() {
-        automatic_solve_btn->setDisabled(true);
+    field->autoShuffleBtn->setGeometry(GAP_PX, GAP_PX, field->width() - 2 * GAP_PX, 2 * TILE_PX_SIZE + GAP_PX);
+    field->manualShuffleBtn->setGeometry(GAP_PX, 2 * TILE_PX_SIZE + 3 * GAP_PX, field->width() - 2 * GAP_PX, 2 * TILE_PX_SIZE + GAP_PX);
+    connect(automaticSolveBtn, &QPushButton::clicked, this, [=]() {
+        automaticSolveBtn->setDisabled(true);
         automaticSolve = new AutomaticSolve(this, field->tilesArray);
-        
+        });
+    connect(startAfterManualSortBtn, &QPushButton::clicked, this, [=]() {
+        automaticSolveBtn->setEnabled(true);
+        movesCounter->moves_num = 0;
+        movesCounter->updateMovesCounter("Moves: " + QString::number(movesCounter->moves_num));
+        movesCounter->show();
+        automaticSolveBtn->show();
+        startAfterManualSortBtn->hide();
         });
 
     QSize window_size;
-    window_size.setWidth(field->width()+2*PX_GAP);
-    window_size.setHeight(field->height() + menu->height() + 3 * PX_GAP);
+    window_size.setWidth(field->width()+2*GAP_PX);
+    window_size.setHeight(field->height() + movesCounter->height() + 3 * GAP_PX);
     this->setFixedSize(window_size);
 }
 
-void puzzle::showResult()
+void Puzzle::showResult(QString title, QString message)
 {
     qDebug("Is sorted");
     QMessageBox sorted_congratulation(this);
-    sorted_congratulation.setWindowTitle("Congratulations!!!");
-    sorted_congratulation.setText("You solved puzzle!\nNumber of moves:  " + QString::number(menu->moves_num));
+    sorted_congratulation.setWindowTitle(title);
+    sorted_congratulation.setText(message);
     sorted_congratulation.setIcon(QMessageBox::Information);
     sorted_congratulation.setStandardButtons(QMessageBox::Retry | QMessageBox::Close);
     int choice = sorted_congratulation.exec();
     switch (choice) {
     case QMessageBox::Retry:
-        menu->moves_num = 0;
-        menu->updateMoves_counter();
-        automatic_solve_btn->setDisabled(true);
-        field->startButton->show();
+        movesCounter->moves_num = 0;
+        movesCounter->updateMovesCounter("Moves: " + QString::number(movesCounter->moves_num));
+        automaticSolveBtn->setDisabled(true);
+        field->autoShuffleBtn->show();
+        field->manualShuffleBtn->show();
         for (int i = 0; i < FIELD_SIZE * FIELD_SIZE; i++) {
             field->tilesArray[i]->setEnabled(true);
         }
@@ -93,9 +82,9 @@ void puzzle::showResult()
     }
 }
 
-puzzle::~puzzle()
+Puzzle::~Puzzle()
 {
-    delete menu;
+    delete movesCounter;
     delete field;
     if (automaticSolve) {
         delete automaticSolve;

@@ -35,13 +35,13 @@ public:
     POS zero_pos;
     int current_moves;
     int heuristic;
-    int tilesMatrix[4][4];
+    int tilesMatrix[FIELD_SIZE][FIELD_SIZE];
 
     State* parent_state;
 
-    void calculate_heuristic();
-    bool is_same(const State* other);
-    bool can_move(ZeroMovesDir zero_moves);
+    void calculateHeuristic();
+    bool isSame(const State* other);
+    bool canMove(ZeroMovesDir zero_moves);
 };
 
 struct CompareState {

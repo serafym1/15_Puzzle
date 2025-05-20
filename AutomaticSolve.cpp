@@ -4,8 +4,8 @@
 #include "qpropertyanimation.h"
 #include <windows.h>
 
-AutomaticSolve::AutomaticSolve(puzzle* parent, Tile** sourceArray)
-	: parentW(parent)
+AutomaticSolve::AutomaticSolve(Puzzle* parent, Tile** sourceArray)
+	: puzzle(parent)
 {
 	std::cout << "Starting program" << std::endl;
 	for (int i = 0; i < FIELD_SIZE; i++) {
@@ -22,104 +22,85 @@ AutomaticSolve::AutomaticSolve(puzzle* parent, Tile** sourceArray)
 	}
 	
 	State* state = new State(sourceArray, correctPos);
-	states_queue.push(state);
-	automatic_solve();
+	if (state->heuristic == 0) {
+		puzzle->showResult("So, why?", "The puzzle is already solved!!!");
+	}
+	statesQueue.push(state);
+	automaticSolve();
 	
-	parentW->menu->moves_num = swap_order.size();
-	parentW->menu->moves_counter->setText("Moves left:\n" + QString::number(swap_order.size()) + "/" + QString::number(parentW->menu->moves_num));
-	parentW->menu->moves_counter->update();
+	puzzle->movesCounter->moves_num = swapOrder.size();
+	puzzle->movesCounter->updateMovesCounter("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(puzzle->movesCounter->moves_num));
 	Tile* moveTile;
 	do {
-		moveTile = parentW->field->tilesArray[swap_order.top()];
-		swap_order.pop();
-		QPropertyAnimation* anim = new QPropertyAnimation(moveTile, "pos", parentW);
+		moveTile = puzzle->field->tilesArray[swapOrder.top()];
+		swapOrder.pop();
+		QPropertyAnimation* anim = new QPropertyAnimation(moveTile, "pos", puzzle);
+		QObject::connect(anim, &QPropertyAnimation::finished, anim, &QObject::deleteLater);
 		anim->setDuration(600);
 		anim->setStartValue(moveTile->pos());
-		anim->setEndValue(parentW->field->tile0->pos());
+		anim->setEndValue(puzzle->field->tile0->pos());
 		anim->setEasingCurve(QEasingCurve::InOutCubic);
-		parentW->field->tile0->move(moveTile->pos());
+		puzzle->field->tile0->move(moveTile->pos());
 
 		QEventLoop loop;
 		QObject::connect(anim, &QPropertyAnimation::finished, &loop, &QEventLoop::quit);
 		anim->start();
 		loop.exec();
-		std::swap(parentW->field->tile0->index, moveTile->index);
+		std::swap(puzzle->field->tile0->index, moveTile->index);
 
-		parentW->menu->moves_counter->setText("Moves left:\n" + QString::number(swap_order.size()) + "/" + QString::number(parentW->menu->moves_num));
-		parentW->menu->moves_counter->update();
+		puzzle->movesCounter->updateMovesCounter("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(puzzle->movesCounter->moves_num));
 		
-	} while (!swap_order.empty());
+	} while (!swapOrder.empty());
 		
-	parentW->showResult();
+	puzzle->showResult("Info", "The puzzle was solved in " + QString::number(puzzle->movesCounter->moves_num) + " moves.");
 }
 
-void AutomaticSolve::automatic_solve()
+void AutomaticSolve::automaticSolve()
 {
+	puzzle->movesCounter->updateMovesCounter("Solving...");
 	do {
-		State* currentState = states_queue.top(); 
-		states_queue.pop();
+		State* currentState = statesQueue.top(); 
+		statesQueue.pop();
 		
 		std::cout << "H " << currentState->heuristic
 			<< " M " << currentState->current_moves << std::endl;
 
-		parentW->menu->moves_counter->setText("Solving...");
-		parentW->menu->moves_counter->update();
-		parentW->menu->moves_counter->repaint();
-
 		for (ZeroMovesDir dir : {UP, DOWN, LEFT, RIGHT}) {
-			if (currentState->can_move(dir)) {
+			if (currentState->canMove(dir)) {
 				State* newState = new State(currentState, correctPos, dir);
-				if (!existing_states.is_added(newState)) {
+				if (!existingStates.isAdded(newState)) {
 					delete newState;
 				}
 				else {
-					states_queue.push(newState);
+					statesQueue.push(newState);
 				}
 			}
 		}
-	} while (states_queue.top()->heuristic != 0);
+	} while (statesQueue.top()->heuristic != 0);
+	
 	for (int i = 0; i < FIELD_SIZE; i++) {
 		for (int j = 0; j < FIELD_SIZE; j++) {
-			std::cout << int(states_queue.top()->tilesMatrix[i][j]) << "\t";
+			std::cout << int(statesQueue.top()->tilesMatrix[i][j]) << "\t";
 		}
 		std::cout << std::endl;
 	}
-	std::cout << std::endl << "\tMoves:\t" << int(states_queue.top()->current_moves) << std::endl << std::endl;
+	std::cout << std::endl << "\tMoves:\t" << int(statesQueue.top()->current_moves) << std::endl << std::endl;
 
-	State* thisState = states_queue.top();
+	State* thisState = statesQueue.top();
 	do {
 
 		int swapped_tile = thisState->parent_state->tilesMatrix[thisState->zero_pos.y][thisState->zero_pos.x];
-		swap_order.push(swapped_tile - 1);
+		swapOrder.push(swapped_tile - 1);
 		thisState = thisState->parent_state;
 	} while (thisState->parent_state != nullptr);
 	delete thisState;
 
-	while (!states_queue.empty()) {
-		State* thisState = states_queue.top();
-		states_queue.pop();
+	while (!statesQueue.empty()) {
+		State* thisState = statesQueue.top();
+		statesQueue.pop();
 		delete thisState;
 	}
 }
-
-//bool AutomaticSolve::check_unique_and_add(State* current)
-//{
-//	for (State* existing : existing_states) {
-//		if (current->is_same(existing)) {
-//			if (current->current_moves < existing->current_moves) {
-//				*existing = *current;
-//				states_queue.push(current);
-//				return true;
-//			}
-//			return false;
-//		}
-//
-//	}
-//	existing_states.push_back(current);
-//	states_queue.push(current);
-//
-//	return true;
-//}
 
 AutomaticSolve::~AutomaticSolve()
 {

@@ -8,12 +8,15 @@ struct Node {
 	Node(uint16_t number);
 	uint8_t number;
 	uint16_t current_moves; // 0 if it is not on the 16 level
-	std::vector<Node*> next_number;
+	std::vector<Node*> nextNumber;
 };
 
 class ExistingStatesTree {
 public:
-	Node* root;
 	ExistingStatesTree();
-	bool is_added(State* currentState);
+	~ExistingStatesTree();
+
+	Node* root;
+	bool isAdded(State* currentState);
+	void deleteSubtree(Node* node);
 };
