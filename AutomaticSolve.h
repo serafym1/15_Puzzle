@@ -11,7 +11,7 @@ class Puzzle;
 
 class AutomaticSolve {
 public:
-    AutomaticSolve(Puzzle* parent, Tile** sourceArray);
+    AutomaticSolve(Puzzle* parent);
     ~AutomaticSolve();
 
     POS correctPos[FIELD_SIZE * FIELD_SIZE];
@@ -22,5 +22,5 @@ public:
     ExistingStatesTree existingStates;
     std::stack<int> swapOrder;
 
-    void automaticSolve();
+    void solveThis(Tile** sourceArray);
 };

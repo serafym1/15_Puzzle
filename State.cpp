@@ -12,7 +12,7 @@ State::State(Tile** sourceArray, POS* correctPos) {
             int index = i * FIELD_SIZE + j;
             int m = sourceArray[index]->index / 4;
             int n = sourceArray[index]->index % 4;
-            tilesMatrix[m][n] = sourceArray[index]->text().toInt();
+            tilesMatrix[m][n] = (uint8_t)(sourceArray[index]->text().toInt());
             if (tilesMatrix[m][n] == 0) {
                 zero_pos = POS(n, m);
             }

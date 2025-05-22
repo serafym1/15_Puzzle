@@ -6,7 +6,7 @@ ExistingStatesTree::ExistingStatesTree()
 	root = new Node(10000);
 }
 
-Node::Node(uint16_t number)
+Node::Node(uint8_t number)
 	: number(number), current_moves(0) {
 }
 

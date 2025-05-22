@@ -61,6 +61,9 @@ void Field::automaticShuffle()
 
 bool Field::isSorted()
 {
+    if (puzzle->startAfterManualSortBtn->isVisible()) {
+        return false;
+    }
     for (int i = 0; i < FIELD_SIZE * FIELD_SIZE - 1; i++) {
         if (tilesArray[i]->index != i) {
             return false;

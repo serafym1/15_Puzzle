@@ -20,8 +20,8 @@ public:
     QPushButton* manualShuffleBtn;
 
     bool isNear(Tile* tile1, Tile* tile2);
-    void automaticShuffle();
-    bool isSorted();
     void moveTile(Tile* tile);
+    bool isSorted();
+    void automaticShuffle();
     void manualShuffle();
 };

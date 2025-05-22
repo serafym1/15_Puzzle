@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "Tile.h"
-#include "priority_queue.h"
+#include "header.h"
 
 enum ZeroMovesDir
 {
@@ -35,7 +35,7 @@ public:
     POS zero_pos;
     int current_moves;
     int heuristic;
-    int tilesMatrix[FIELD_SIZE][FIELD_SIZE];
+    uint8_t tilesMatrix[FIELD_SIZE][FIELD_SIZE];
 
     State* parent_state;
 

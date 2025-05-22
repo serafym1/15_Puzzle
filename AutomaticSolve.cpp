@@ -4,7 +4,7 @@
 #include "qpropertyanimation.h"
 #include <windows.h>
 
-AutomaticSolve::AutomaticSolve(Puzzle* parent, Tile** sourceArray)
+AutomaticSolve::AutomaticSolve(Puzzle* parent)
 	: puzzle(parent)
 {
 	std::cout << "Starting program" << std::endl;
@@ -17,46 +17,24 @@ AutomaticSolve::AutomaticSolve(Puzzle* parent, Tile** sourceArray)
 			else {
 				correctPos[number] = POS(j, i);
 			}
-			sourceArray[i*4+j]->setDisabled(true);
+		}
+	}
+}
+
+void AutomaticSolve::solveThis(Tile** sourceArray)
+{
+	for (int i = 0; i < FIELD_SIZE; i++) {
+		for (int j = 0; j < FIELD_SIZE; j++) {
+			sourceArray[i * 4 + j]->setDisabled(true);
 		}
 	}
 	
 	State* state = new State(sourceArray, correctPos);
+	statesQueue.push(state);
 	if (state->heuristic == 0) {
 		puzzle->showResult("So, why?", "The puzzle is already solved!!!");
+		return;
 	}
-	statesQueue.push(state);
-	automaticSolve();
-	
-	puzzle->movesCounter->moves_num = swapOrder.size();
-	puzzle->movesCounter->updateMovesCounter("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(puzzle->movesCounter->moves_num));
-	Tile* moveTile;
-	do {
-		moveTile = puzzle->field->tilesArray[swapOrder.top()];
-		swapOrder.pop();
-		QPropertyAnimation* anim = new QPropertyAnimation(moveTile, "pos", puzzle);
-		QObject::connect(anim, &QPropertyAnimation::finished, anim, &QObject::deleteLater);
-		anim->setDuration(600);
-		anim->setStartValue(moveTile->pos());
-		anim->setEndValue(puzzle->field->tile0->pos());
-		anim->setEasingCurve(QEasingCurve::InOutCubic);
-		puzzle->field->tile0->move(moveTile->pos());
-
-		QEventLoop loop;
-		QObject::connect(anim, &QPropertyAnimation::finished, &loop, &QEventLoop::quit);
-		anim->start();
-		loop.exec();
-		std::swap(puzzle->field->tile0->index, moveTile->index);
-
-		puzzle->movesCounter->updateMovesCounter("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(puzzle->movesCounter->moves_num));
-		
-	} while (!swapOrder.empty());
-		
-	puzzle->showResult("Info", "The puzzle was solved in " + QString::number(puzzle->movesCounter->moves_num) + " moves.");
-}
-
-void AutomaticSolve::automaticSolve()
-{
 	puzzle->movesCounter->updateMovesCounter("Solving...");
 	do {
 		State* currentState = statesQueue.top(); 
@@ -100,6 +78,32 @@ void AutomaticSolve::automaticSolve()
 		statesQueue.pop();
 		delete thisState;
 	}
+
+	puzzle->movesCounter->moves_num = swapOrder.size();
+	puzzle->movesCounter->updateMovesCounter("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(puzzle->movesCounter->moves_num));
+	Tile* moveTile;
+	do {
+		moveTile = puzzle->field->tilesArray[swapOrder.top()];
+		swapOrder.pop();
+		QPropertyAnimation* anim = new QPropertyAnimation(moveTile, "pos", puzzle);
+		QObject::connect(anim, &QPropertyAnimation::finished, anim, &QObject::deleteLater);
+		anim->setDuration(600);
+		anim->setStartValue(moveTile->pos());
+		anim->setEndValue(puzzle->field->tile0->pos());
+		anim->setEasingCurve(QEasingCurve::InOutCubic);
+		puzzle->field->tile0->move(moveTile->pos());
+
+		QEventLoop loop;
+		QObject::connect(anim, &QPropertyAnimation::finished, &loop, &QEventLoop::quit);
+		anim->start();
+		loop.exec();
+		std::swap(puzzle->field->tile0->index, moveTile->index);
+
+		puzzle->movesCounter->updateMovesCounter("Moves left:\n" + QString::number(swapOrder.size()) + "/" + QString::number(puzzle->movesCounter->moves_num));
+
+	} while (!swapOrder.empty());
+
+	puzzle->showResult("Info", "The puzzle was solved in " + QString::number(puzzle->movesCounter->moves_num) + " moves.");
 }
 
 AutomaticSolve::~AutomaticSolve()

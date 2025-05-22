@@ -6,8 +6,6 @@
 Puzzle::Puzzle(QWidget* parentWidget)
     : QMainWindow(parentWidget)
 {
-    ui.setupUi(this);
-
     this->setWindowTitle("15 puzzle");
     this->setWindowIcon(QIcon(":/icon.png"));
     
@@ -36,7 +34,12 @@ Puzzle::Puzzle(QWidget* parentWidget)
     field->manualShuffleBtn->setGeometry(GAP_PX, 2 * TILE_PX_SIZE + 3 * GAP_PX, field->width() - 2 * GAP_PX, 2 * TILE_PX_SIZE + GAP_PX);
     connect(automaticSolveBtn, &QPushButton::clicked, this, [=]() {
         automaticSolveBtn->setDisabled(true);
-        automaticSolve = new AutomaticSolve(this, field->tilesArray);
+        automaticSolve = new AutomaticSolve(this);
+        automaticSolve->solveThis(field->tilesArray);
+        if (automaticSolve) {
+            delete automaticSolve;
+            automaticSolve = nullptr;
+        }
         });
     connect(startAfterManualSortBtn, &QPushButton::clicked, this, [=]() {
         automaticSolveBtn->setEnabled(true);
@@ -75,6 +78,7 @@ void Puzzle::showResult(QString title, QString message)
         break;
     case QMessageBox::Close:
         QApplication::quit();
+        delete this;
         break;
     default:
         qDebug("Error in MessageBox (sorted_congratulation)");
@@ -84,8 +88,8 @@ void Puzzle::showResult(QString title, QString message)
 
 Puzzle::~Puzzle()
 {
-    delete movesCounter;
-    delete field;
+    //delete movesCounter;
+    //delete field;
     if (automaticSolve) {
         delete automaticSolve;
     }
