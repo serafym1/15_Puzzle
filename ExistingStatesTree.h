@@ -17,6 +17,7 @@ public:
 	~ExistingStatesTree();
 
 	Node* root;
+
 	bool isAdded(State* currentState);
 	void deleteSubtree(Node* node);
 };
