@@ -78,7 +78,6 @@ void Puzzle::showResult(QString title, QString message)
         break;
     case QMessageBox::Close:
         QApplication::quit();
-        delete this;
         break;
     default:
         qDebug("Error in MessageBox (sorted_congratulation)");
@@ -88,8 +87,6 @@ void Puzzle::showResult(QString title, QString message)
 
 Puzzle::~Puzzle()
 {
-    //delete movesCounter;
-    //delete field;
     if (automaticSolve) {
         delete automaticSolve;
     }

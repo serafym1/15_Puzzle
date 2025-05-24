@@ -61,9 +61,6 @@ void Field::automaticShuffle()
 
 bool Field::isSorted()
 {
-    if (puzzle->startAfterManualSortBtn->isVisible()) {
-        return false;
-    }
     for (int i = 0; i < FIELD_SIZE * FIELD_SIZE - 1; i++) {
         if (tilesArray[i]->index != i) {
             return false;
@@ -90,7 +87,17 @@ void Field::moveTile(Tile* tile)
     puzzle->movesCounter->moves_num++;
     puzzle->movesCounter->updateMovesCounter("Moves: " + QString::number(puzzle->movesCounter->moves_num));
     if (isSorted()) {
-        puzzle->showResult("Congratulations!!!", "You solved puzzle!\nNumber of moves:  " + QString::number(puzzle->movesCounter->moves_num));
+        if (puzzle->startAfterManualSortBtn->isVisible()) {
+            puzzle->startAfterManualSortBtn->setDisabled(true);
+        }
+        else {
+            puzzle->showResult("Congratulations!!!", "You solved puzzle!\nNumber of moves:  " + QString::number(puzzle->movesCounter->moves_num));
+        }
+    }
+    else {
+        if (puzzle->startAfterManualSortBtn->isVisible()) {
+            puzzle->startAfterManualSortBtn->setEnabled(true);
+        }
     }
 }
 
@@ -100,7 +107,7 @@ void Field::manualShuffle() {
     puzzle->movesCounter->hide();
     puzzle->automaticSolveBtn->hide();
     puzzle->startAfterManualSortBtn->show();
-    puzzle->automaticSolveBtn->setEnabled(true);
+    puzzle->startAfterManualSortBtn->setDisabled(true);
 }
 
 Field::~Field()
